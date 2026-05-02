@@ -1,0 +1,18 @@
+[Unit]
+Description=PostgreSQL create_database Listener (Python, Provisioning integriert)
+After=network.target
+Wants=network.target
+
+[Service]
+Type=simple
+User=sqladmin
+Group=sqladmin
+ExecStart=/usr/local/bin/db_listener.py
+Restart=always
+RestartSec=3
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
+
