@@ -6,9 +6,10 @@ import select
 import psycopg2
 import psycopg2.extensions
 
-DSN_POSTGRES_TX = "host=VIP port=6432 dbname=postgres user=creator"
-DSN_POSTGRES_SESSION = "host=VIP port=6432 dbname=postgres_session user=creator"
+# Basis-DSN für die Steuerverbindung (postgres-DB)
+DSN_CONTROL = "host=VIP port=6432 dbname=postgres user=creator"
 
+# Pfade zu deinen SQL-Dateien in der Zieldatenbank
 INIT_DB_SQL = "/opt/db/init_managed_database.sql"
 INIT_SCHEMA_SQL = "/opt/db/create_managed_schema.sql"
 
@@ -22,7 +23,7 @@ def log(msg):
 
 def create_database(dbname: str):
     log(f"Erzeuge Datenbank: {dbname}")
-    conn = psycopg2.connect(DSN_POSTGRES_TX)
+    conn = psycopg2.connect(DSN_CONTROL)
     conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT)
     try:
         cur = conn.cursor()
@@ -38,7 +39,7 @@ def run_sql_file(dbname: str, path: str):
     if not os.path.isfile(path):
         raise RuntimeError(f"SQL-Datei nicht gefunden: {path}")
 
-    dsn_db = DSN_POSTGRES_TX.replace("dbname=postgres", f'dbname={dbname}')
+    dsn_db = DSN_CONTROL.replace("dbname=postgres", f'dbname={dbname}')
     conn = psycopg2.connect(dsn_db)
     conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT)
     try:
@@ -54,7 +55,7 @@ def run_sql_file(dbname: str, path: str):
 
 def init_database(dbname: str):
     log(f"Führe init_managed_database() in {dbname} aus")
-    dsn_db = DSN_POSTGRES_TX.replace("dbname=postgres", f'dbname={dbname}')
+    dsn_db = DSN_CONTROL.replace("dbname=postgres", f'dbname={dbname}')
     conn = psycopg2.connect(dsn_db)
     conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT)
     try:
@@ -68,7 +69,7 @@ def init_database(dbname: str):
 
 def init_public_schema(dbname: str):
     log(f"Initialisiere Schema public in {dbname}")
-    dsn_db = DSN_POSTGRES_TX.replace("dbname=postgres", f'dbname={dbname}')
+    dsn_db = DSN_CONTROL.replace("dbname=postgres", f'dbname={dbname}')
     conn = psycopg2.connect(dsn_db)
     conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT)
     try:
@@ -92,7 +93,7 @@ def listen_loop():
     while True:
         try:
             log("Verbinde zu PostgreSQL (Steuerverbindung)…")
-            conn = psycopg2.connect(DSN_POSTGRES_SESSION)
+            conn = psycopg2.connect(DSN_CONTROL)
             conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT)
 
             cur = conn.cursor()
@@ -127,3 +128,4 @@ def listen_loop():
 
 if __name__ == "__main__":
     listen_loop()
+

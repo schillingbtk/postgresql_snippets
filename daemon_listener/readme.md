@@ -1,5 +1,13 @@
 # PostgreSQL Listener Service (`db_listener`)
 
+UPDATE 10.5.2026 --> wenn pgbouncer pool_mode = transaction funktioniert der Listener nicht, wenn nicht eine DSN speziell für eine permanente Session konfiguriert ist.
+
+pgbouncer:
+[databases]
+postgres_session = host=127.0.0.1 port=5432 dbname=postgres pool_mode=session
+* = host=127.0.0.1 port=5432
+
+
 ## Zweck
 
 Der Dienst ist ein dauerhaft laufender Python-Prozess, der über PostgreSQL **LISTEN/NOTIFY** auf dem Kanal `create_database` lauscht. Sobald ein Client **`NOTIFY create_database, '<dbname>'`** auslöst, wird die angegebene Datenbank automatisch angelegt und mit Schema-, Rollen- und Rechte-Setup initialisiert.
