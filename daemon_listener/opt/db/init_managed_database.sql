@@ -12,12 +12,12 @@ DECLARE
 BEGIN
     -- Admin-Rolle
     IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = admin_role) THEN
-        EXECUTE format('CREATE ROLE %I NOLOGIN;', admin_role);
+        EXECUTE format('CREATE ROLE %I NOLOGIN NOINHERIT;', admin_role);
     END IF;
 
     -- User-Rolle
     IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = user_role) THEN
-        EXECUTE format('CREATE ROLE %I NOLOGIN;', user_role);
+        EXECUTE format('CREATE ROLE %I NOLOGIN NOINHERIT;', user_role);
     END IF;
 END$$;
 
